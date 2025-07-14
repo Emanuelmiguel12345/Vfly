@@ -3,117 +3,1706 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo do Jaiminho - Carregando...</title>
+    <title>Jogo do Jaiminho - Live Streamer</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4ecdc4;
             --primary-dark: #3aa8a1;
             --secondary: #ff6b6b;
+            --secondary-dark: #e05555;
+            --accent: #9c4dff;
             --dark: #0a0a0a;
             --darker: #1a1a2e;
             --light: #ffffff;
+            --gray: #cccccc;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
-            color: var(--light);
-            height: 100vh;
-            overflow: hidden;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
         }
 
-        /* Tela de carregamento */
-        .loading-screen {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%); 
+            color: var(--light); 
+            min-height: 100vh; 
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
             text-align: center;
+            margin-bottom: 30px;
+            position: relative;
         }
 
-        .loading-logo-container {
-            width: 200px; /* Largura fixa para o container */
-            height: 156px; /* 200 * (1000/1280) para manter proporção */
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-logo {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Mantém a proporção sem distorcer */
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
             animation: float 3s ease-in-out infinite;
         }
 
-        .loading-text {
-            font-size: 1.5rem;
-            color: var(--primary);
-            margin-top: 20px;
-            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .loading-bar-container {
-            width: 200px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            margin-top: 30px;
+        /* Overlay para modais */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Modal de vitória */
+        .modal {
+            background: linear-gradient(135deg, var(--darker) 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
             overflow: hidden;
         }
 
-        .loading-bar {
+        .modal::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .overlay.active .modal {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .modal p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .modal .icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: bounce 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .victory-modal {
+            border: 2px solid var(--primary);
+        }
+
+        .victory-modal h2 {
+            color: var(--primary);
+        }
+
+        .defeat-modal {
+            border: 2px solid var(--secondary);
+        }
+
+        .defeat-modal h2 {
+            color: var(--secondary);
+        }
+
+        .rodrigo-modal {
+            border: 2px solid var(--accent);
+        }
+
+        .rodrigo-modal h2 {
+            color: var(--accent);
+        }
+
+        /* Easter Egg do Rodrigo */
+        .rodrigo-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent);
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(156, 77, 255, 0.5);
+            transition: transform 0.3s;
+        }
+
+        .rodrigo-avatar:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .rodrigo-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .rodrigo-stats span {
+            background: rgba(156, 77, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .rodrigo-message {
+            font-size: 1.1rem;
+            margin-top: 15px;
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        /* Container principal */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Container do jogo */
+        .game-container { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 20px; 
+            padding: 30px; 
+            width: 60%; 
+            text-align: center; 
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3); 
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .game-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .game-container.victory-effect::before {
+            opacity: 1;
+        }
+
+        .game-container.defeat-effect::before {
+            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            opacity: 1;
+        }
+
+        /* Side containers */
+        .side-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .side-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .history-container {
+            width: 20%;
+        }
+
+        .scoreboard-container {
+            width: 20%;
+        }
+
+        /* Título do jogo */
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 10px; 
+            background: linear-gradient(45deg, var(--secondary), var(--primary), #45b7d1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            position: relative;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--secondary), var(--primary), #45b7d1);
+            border-radius: 3px;
+        }
+
+        h2, h3, h4 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* Telas do jogo */
+        .setup-screen { display: block; }
+        .game-screen { display: none; }
+        .welcome-screen { 
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Inputs */
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-input { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 15px; 
+            padding: 15px 20px; 
+            font-size: 1.1rem; 
+            color: var(--light); 
+            width: 100%; 
+            margin-bottom: 15px; 
+            transition: all 0.3s; 
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-input:focus { 
+            outline: none; 
+            border-color: var(--primary); 
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); 
+        }
+
+        .form-input::placeholder { 
+            color: rgba(255, 255, 255, 0.5); 
+        }
+
+        /* Botões */
+        .btn { 
+            background: linear-gradient(45deg, var(--secondary), var(--primary)); 
+            border: none; 
+            border-radius: 15px; 
+            padding: 15px 30px; 
+            font-size: 1.1rem; 
+            color: var(--light); 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
             height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--primary), #45b7d1);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3); 
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-small { 
+            background: linear-gradient(45deg, var(--primary), #45b7d1); 
+            border: none; 
+            border-radius: 10px; 
+            padding: 10px 20px; 
+            font-size: 0.9rem; 
+            color: var(--light); 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            margin: 5px;
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-small:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3); 
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Display da palavra */
+        .word-display { 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            margin: 30px 0; 
+            letter-spacing: 8px; 
+            color: var(--primary); 
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5); 
+            min-height: 60px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 5px; 
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Tema da palavra */
+        .theme-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+            padding: 10px 20px;
+            background: rgba(255, 107, 107, 0.1);
             border-radius: 10px;
-            animation: loading 3s ease-in-out infinite;
+            display: inline-block;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        /* Estatísticas */
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px; 
+            margin: 20px 0; 
+        }
+
+        .stat-item { 
+            background: rgba(255, 255, 255, 0.1); 
+            padding: 15px; 
+            border-radius: 15px; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label { 
+            font-size: 0.9rem; 
+            opacity: 0.8; 
+            margin-bottom: 5px; 
+        }
+
+        .stat-value { 
+            font-size: 1.5rem; 
+            font-weight: bold; 
+        }
+
+        .errors { color: var(--secondary); }
+
+        /* Teclado */
+        .keyboard { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .key { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px solid rgba(255, 255, 255, 0.2); 
+            border-radius: 8px; 
+            padding: 15px 5px; 
+            font-size: 1rem; 
+            color: var(--light); 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            font-weight: bold; 
+            text-align: center;
+            min-width: 40px;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+            max-width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .key:hover::after {
+            opacity: 1;
+        }
+
+        .key:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1); 
+        }
+
+        .key.correct { 
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark)); 
+            border-color: var(--primary); 
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); 
+        }
+
+        .key.wrong { 
+            background: linear-gradient(45deg, var(--secondary), var(--secondary-dark)); 
+            border-color: var(--secondary); 
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3); 
+        }
+
+        .key.disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+            pointer-events: none; 
+        }
+
+        /* Mensagens */
+        .message { 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 15px; 
+            min-height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .message.victory { 
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2)); 
+            border: 2px solid var(--primary); 
+            color: var(--primary); 
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5); 
+        }
+
+        .message.defeat { 
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(255, 71, 87, 0.2)); 
+            border: 2px solid var(--secondary); 
+            color: var(--secondary); 
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5); 
+        }
+
+        /* Palavra revelada */
+        .revealed-word {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--secondary);
+            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: pulse 1.5s infinite;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 10px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Tela de vitória */
+        .victory-screen { 
+            display: none; 
+            background: rgba(78, 205, 196, 0.1); 
+            border: 2px solid var(--primary); 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin: 20px 0; 
+        }
+
+        .victory-input { 
+            background: rgba(255, 255, 255, 0.1); 
+            border: 2px solid var(--primary); 
+            border-radius: 10px; 
+            padding: 12px 15px; 
+            font-size: 1.1rem; 
+            color: var(--light); 
+            margin: 10px 5px; 
+            text-align: center; 
+            min-width: 200px; 
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .victory-input:focus { 
+            outline: none; 
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.4); 
+        }
+
+        .victory-input::placeholder { 
+            color: rgba(255, 255, 255, 0.6); 
+        }
+
+        /* Placar */
+        .scoreboard { 
+            margin: 20px 0; 
+            max-height: 500px; 
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(255,255,255,0.1);
+        }
+
+        .scoreboard::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scoreboard::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .scoreboard::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+
+        .scoreboard h3 { 
+            color: var(--primary); 
+            margin-bottom: 15px; 
+            font-size: 1.3rem; 
+            text-align: center; 
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            z-index: 1;
+        }
+
+        .score-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px 15px; 
+            margin: 8px 0; 
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 8px; 
+            border-left: 3px solid var(--primary); 
+            transition: all 0.3s ease;
+        }
+
+        .score-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .score-item.streamer { 
+            border-left-color: var(--secondary); 
+            background: rgba(255, 107, 107, 0.1); 
+        }
+
+        .player-name { 
+            font-weight: bold; 
+            font-size: 1rem; 
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .player-score { 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            color: var(--primary); 
+        }
+
+        .streamer .player-score { 
+            color: var(--secondary); 
+        }
+
+        .crown { 
+            color: #ffd700; 
+            margin-right: 5px; 
+        }
+
+        /* Hangman */
+        .hangman-display { 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin: 20px 0; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            height: 250px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            position: relative;
+        }
+
+        .hangman-svg { 
+            width: 200px; 
+            height: 200px; 
+        }
+
+        .hangman-part { 
+            transition: 0.5s; 
+            filter: drop-shadow(0 0 5px rgba(255, 107, 107, 0.5)); 
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 1.5s ease-in-out forwards;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .gallows { 
+            stroke: #666; 
+            stroke-width: 3; 
+            fill: none; 
+        }
+
+        .head { 
+            stroke: var(--secondary); 
+            stroke-width: 3; 
+            fill: none; 
+        }
+
+        .body { 
+            stroke: var(--secondary); 
+            stroke-width: 3; 
+        }
+
+        .arms, .legs { 
+            stroke: var(--secondary); 
+            stroke-width: 3; 
+        }
+
+        /* Histórico de versões */
+        .history-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(5px);
+            padding: 10px;
+            z-index: 1;
+        }
+
+        .history-content {
+            margin: 20px 0;
+            max-height: 500px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(255,255,255,0.1);
+        }
+
+        .history-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-content::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+        }
+
+        .history-content::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+
+        .version-title {
+            color: var(--secondary);
+            margin: 15px 0 5px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+
+        .version-feature {
+            margin: 8px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .version-feature:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+        }
+
+        .feature-check {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+
+        /* Como usar */
+        .how-to-use {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .how-to-use h4 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .how-to-use ol {
+            padding-left: 20px;
+        }
+
+        .how-to-use li {
+            margin-bottom: 8px;
+        }
+
+        /* Efeitos de partículas */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            opacity: 0;
+            z-index: 100;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: rgba(0,0,0,0.8);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .main-container { 
+                flex-direction: column; 
+            }
+            
+            .game-container, .history-container, .scoreboard-container { 
+                width: 100%; 
+            }
+            
+            .game-container { 
+                padding: 20px; 
+            }
+            
+            h1 { 
+                font-size: 2rem; 
+            }
+            
+            .word-display { 
+                font-size: 2rem; 
+                letter-spacing: 4px; 
+            }
+            
+            .keyboard { 
+                grid-template-columns: repeat(auto-fit, minmax(40px, 1fr)); 
+                gap: 8px; 
+            }
+            
+            .key { 
+                padding: 12px 8px; 
+                font-size: 1rem; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .word-display {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+            }
+            
+            .theme-display {
+                font-size: 1.2rem;
+            }
+            
+            .key {
+                min-width: 30px;
+                height: 40px;
+                font-size: 0.9rem;
+                padding: 10px 5px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Animações */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        @keyframes loading {
-            0% { width: 0%; }
-            50% { width: 100%; }
-            100% { width: 0%; }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
         }
     </style>
 </head>
 <body>
-    <!-- Tela de Carregamento -->
-    <div class="loading-screen">
-        <div class="loading-logo-container">
-            <img src="https://raw.githubusercontent.com/Emanuelmiguel12345/Freecut/refs/heads/main/6%20Sem%20T%C3%ADtulo_20250714021933.png" 
-                 alt="Logo Jaiminho" 
-                 class="loading-logo">
+    <!-- Overlay e Modal de Vitória -->
+    <div class="overlay" id="victoryOverlay">
+        <div class="modal victory-modal">
+            <div class="icon">🎉</div>
+            <h2>PARABÉNS!</h2>
+            <p id="victoryMessage">Você acertou a palavra!</p>
+            <div style="margin-top: 20px;">
+                <button class="btn" id="continueBtn">CONTINUAR</button>
+            </div>
         </div>
-        <div class="loading-text">Espere a atualização...</div>
-        <div class="loading-bar-container">
-            <div class="loading-bar"></div>
+    </div>
+
+    <!-- Modal de Derrota -->
+    <div class="overlay" id="defeatOverlay">
+        <div class="modal defeat-modal">
+            <div class="icon">💀</div>
+            <h2>GAME OVER!</h2>
+            <p id="defeatMessage">Você errou 6 vezes!</p>
+            <div style="margin-top: 20px;">
+                <button class="btn" id="continueDefeatBtn">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Easter Egg do Rodrigo -->
+    <div class="overlay" id="rodrigoOverlay">
+        <div class="modal rodrigo-modal">
+            <img src="https://raw.githubusercontent.com/Emanuelmiguel12345/Vfly/refs/heads/main/oho_rogimsedrg-e.jpeg" alt="Rodrigo Gomes" class="rodrigo-avatar">
+            <h2>@Rodrigo_Gomesh</h2>
+            <div class="rodrigo-stats">
+                <span>👥 3173 seguidores</span>
+                <span>👣 6980 seguindo</span>
+                <span>🎮 290 lives</span>
+            </div>
+            <p class="rodrigo-message">Tenha uma boa live e Deus te abençoe! Siga ele também!</p>
+            <div style="margin-top: 20px;">
+                <button class="btn" id="closeRodrigoBtn">CONTINUAR</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Boas-Vindas -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="header">
+            <img src="https://raw.githubusercontent.com/Emanuelmiguel12345/Freecut/refs/heads/main/6%20Sem%20T%C3%ADtulo_20250714021933.png" alt="Logo" class="logo">
+            <h1>JOGO DO JAIMINHO</h1>
+            <p>O jogo de adivinhação perfeito para suas lives!</p>
+        </div>
+        <div class="input-section">
+            <div class="input-group">
+                <label for="streamerNameInput" class="input-label">Seu nome de streamer:</label>
+                <input type="text" class="form-input" id="streamerNameInput" placeholder="Digite seu nome..." maxlength="20">
+            </div>
+            <button class="btn" id="startGameBtn">INICIAR JOGO</button>
+        </div>
+    </div>
+
+    <!-- Container Principal (aparece após cadastro do nome) -->
+    <div class="main-container" id="mainContainer" style="display: none;">
+        <!-- Histórico na esquerda -->
+        <div class="side-container history-container">
+            <h3 class="history-title">📜 HISTÓRICO DE VERSÕES</h3>
+            <div class="history-content">
+                <div class="version-title">Versão 2.0 (Atual)</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Interface completamente redesenhada</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Sistema de pontuação aprimorado</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Novas animações e efeitos visuais</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Design responsivo para todos dispositivos</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Melhorias na experiência do usuário</div>
+                
+                <div class="version-title">Versão 1.4</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Novo modal de vitória com animações</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Design aprimorado com efeitos visuais</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Campo de tema para a palavra secreta</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Tela de derrota estilizada</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Easter egg especial para o Rodrigo</div>
+
+                <div class="how-to-use">
+                    <h4><span>🎮</span> COMO USAR</h4>
+                    <ol>
+                        <li>Digite seu nome de streamer e clique em "INICIAR"</li>
+                        <li>Na tela do jogo, digite o tema e a palavra secreta</li>
+                        <li>Clique em "INICIAR JOGO"</li>
+                        <li>Jogadores tentam adivinhar a palavra letra por letra</li>
+                        <li>Se errarem 6 vezes: ponto automático para o streamer</li>
+                        <li>Se acertarem: registre quem acertou na tela de vitória</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jogo no centro -->
+        <div class="game-container" id="gameContainer">
+            <!-- Tela de Configuração -->
+            <div class="setup-screen" id="setupScreen">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="themeInput" class="input-label">Tema da palavra:</label>
+                        <input type="text" class="form-input" id="themeInput" placeholder="Ex: Frutas, Países..." maxlength="30">
+                    </div>
+                    <div class="input-group">
+                        <label for="secretWordInput" class="input-label">Palavra secreta:</label>
+                        <input type="text" class="form-input" id="secretWordInput" placeholder="Digite a palavra..." maxlength="30">
+                        <small style="opacity: 0.7;">Dica: Use "_" para espaços entre palavras</small>
+                    </div>
+                    <button class="btn" id="startRoundBtn">INICIAR JOGO</button>
+                </div>
+            </div>
+
+            <!-- Tela do Jogo -->
+            <div class="game-screen" id="gameScreen">
+                <div class="theme-display" id="themeDisplay"></div>
+                <div class="word-display" id="wordDisplay"></div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Acertos</div>
+                        <div class="stat-value" id="correctCount">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label errors">Erros</div>
+                        <div class="stat-value errors" id="errorCount">0/6</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Restam</div>
+                        <div class="stat-value" id="remainingCount">0</div>
+                    </div>
+                </div>
+
+                <div class="hangman-display" id="hangmanDisplay">
+                    <svg class="hangman-svg" viewBox="0 0 200 200">
+                        <!-- Base -->
+                        <line class="gallows" x1="20" y1="180" x2="100" y2="180" />
+                        <!-- Poste -->
+                        <line class="gallows" x1="60" y1="180" x2="60" y2="20" />
+                        <!-- Topo -->
+                        <line class="gallows" x1="60" y1="20" x2="140" y2="20" />
+                        <!-- Corda -->
+                        <line class="gallows" x1="140" y1="20" x2="140" y2="40" />
+                        
+                        <!-- Cabeça (inicialmente invisível) -->
+                        <circle class="hangman-part head" id="head" cx="140" cy="60" r="20" style="display: none;" />
+                        <!-- Corpo (inicialmente invisível) -->
+                        <line class="hangman-part body" id="body" x1="140" y1="80" x2="140" y2="130" style="display: none;" />
+                        <!-- Braço esquerdo (inicialmente invisível) -->
+                        <line class="hangman-part arms" id="leftArm" x1="140" y1="90" x2="110" y2="110" style="display: none;" />
+                        <!-- Braço direito (inicialmente invisível) -->
+                        <line class="hangman-part arms" id="rightArm" x1="140" y1="90" x2="170" y2="110" style="display: none;" />
+                        <!-- Perna esquerda (inicialmente invisível) -->
+                        <line class="hangman-part legs" id="leftLeg" x1="140" y1="130" x2="120" y2="160" style="display: none;" />
+                        <!-- Perna direita (inicialmente invisível) -->
+                        <line class="hangman-part legs" id="rightLeg" x1="140" y1="130" x2="160" y2="160" style="display: none;" />
+                    </svg>
+                </div>
+
+                <div class="keyboard" id="keyboard"></div>
+
+                <div class="message" id="gameMessage"></div>
+                <div class="revealed-word" id="revealedWord" style="display: none;"></div>
+
+                <div class="victory-screen" id="victoryScreen">
+                    <h3>🎉 VITÓRIA! 🎉</h3>
+                    <p>Quem acertou a palavra?</p>
+                    <input type="text" class="victory-input" id="winnerInput" placeholder="Nome do ganhador..." maxlength="20">
+                    <br>
+                    <div style="margin-top: 15px;">
+                        <button class="btn-small" id="addPointBtn">ADICIONAR PONTO</button>
+                        <button class="btn-small btn-secondary" id="skipBtn">PULAR</button>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="newWordBtn">NOVA PALAVRA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Placar ao lado -->
+        <div class="side-container scoreboard-container">
+            <h3>🏆 PLACAR</h3>
+            <div class="scoreboard">
+                <div id="scoreboardContent">
+                    <p style="opacity: 0.6; text-align: center;">Nenhum ponto registrado ainda</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn-small btn-secondary" id="clearScoreboardBtn">LIMPAR PLACAR</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // Simula um tempo de carregamento (remova isso no seu código real)
-        setTimeout(function() {
-            // Aqui você redirecionaria para a página principal
-            // window.location.href = "index.html";
+        // Variáveis do jogo
+        let secretWord = '';
+        let guessedLetters = [];
+        let errorCount = 0;
+        const maxErrors = 6;
+        let scoreboard = [];
+        let streamerName = '';
+        let currentTheme = '';
+
+        // Elementos do DOM
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const mainContainer = document.getElementById('mainContainer');
+        const gameContainer = document.getElementById('gameContainer');
+        const streamerNameInput = document.getElementById('streamerNameInput');
+        const startGameBtn = document.getElementById('startGameBtn');
+        
+        const setupScreen = document.getElementById('setupScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const themeInput = document.getElementById('themeInput');
+        const secretWordInput = document.getElementById('secretWordInput');
+        const startRoundBtn = document.getElementById('startRoundBtn');
+        const themeDisplay = document.getElementById('themeDisplay');
+        const wordDisplay = document.getElementById('wordDisplay');
+        const correctCountElement = document.getElementById('correctCount');
+        const errorCountElement = document.getElementById('errorCount');
+        const remainingCountElement = document.getElementById('remainingCount');
+        const keyboard = document.getElementById('keyboard');
+        const gameMessage = document.getElementById('gameMessage');
+        const revealedWord = document.getElementById('revealedWord');
+        const victoryScreen = document.getElementById('victoryScreen');
+        const winnerInput = document.getElementById('winnerInput');
+        const addPointBtn = document.getElementById('addPointBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const newWordBtn = document.getElementById('newWordBtn');
+        const scoreboardContent = document.getElementById('scoreboardContent');
+        const clearScoreboardBtn = document.getElementById('clearScoreboardBtn');
+        
+        // Modais
+        const victoryOverlay = document.getElementById('victoryOverlay');
+        const victoryMessage = document.getElementById('victoryMessage');
+        const continueBtn = document.getElementById('continueBtn');
+        const defeatOverlay = document.getElementById('defeatOverlay');
+        const defeatMessage = document.getElementById('defeatMessage');
+        const continueDefeatBtn = document.getElementById('continueDefeatBtn');
+        const rodrigoOverlay = document.getElementById('rodrigoOverlay');
+        const closeRodrigoBtn = document.getElementById('closeRodrigoBtn');
+        
+        // Partes do boneco do hangman
+        const hangmanParts = [
+            document.getElementById('head'),
+            document.getElementById('body'),
+            document.getElementById('leftArm'),
+            document.getElementById('rightArm'),
+            document.getElementById('leftLeg'),
+            document.getElementById('rightLeg')
+        ];
+
+        // Event Listeners
+        startGameBtn.addEventListener('click', startGame);
+        startRoundBtn.addEventListener('click', startRound);
+        addPointBtn.addEventListener('click', () => addPoint(false));
+        skipBtn.addEventListener('click', skipVictoryScreen);
+        newWordBtn.addEventListener('click', resetRound);
+        clearScoreboardBtn.addEventListener('click', clearScoreboard);
+        continueBtn.addEventListener('click', () => {
+            victoryOverlay.classList.remove('active');
+            victoryScreen.style.display = 'block';
+        });
+        continueDefeatBtn.addEventListener('click', () => {
+            defeatOverlay.classList.remove('active');
+            addPoint(true, true);
+        });
+        closeRodrigoBtn.addEventListener('click', () => {
+            rodrigoOverlay.classList.remove('active');
+        });
+
+        // Carrega dados salvos nos cookies
+        function loadFromCookies() {
+            const cookies = document.cookie.split(';');
+            for (const cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'jaiminho_scoreboard') {
+                    try {
+                        scoreboard = JSON.parse(decodeURIComponent(value));
+                    } catch (e) {
+                        console.error('Erro ao carregar placar:', e);
+                    }
+                } else if (name === 'jaiminho_streamer') {
+                    streamerName = decodeURIComponent(value);
+                    streamerNameInput.value = streamerName;
+                    
+                    // Se já tem nome salvo, inicia o jogo automaticamente
+                    if (streamerName) {
+                        startGame();
+                    }
+                }
+            }
             
-            // Ou esconderia a tela de carregamento e mostraria o conteúdo
-            // document.querySelector('.loading-screen').style.display = 'none';
-            // document.querySelector('main').style.display = 'block';
+            if (scoreboard.length > 0) {
+                updateScoreboard();
+            }
+        }
+
+        // Salva dados nos cookies
+        function saveToCookies() {
+            // Salva por 30 dias
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + 30);
             
-            console.log("Carregamento completo!");
-        }, 3000);
+            // Salva o placar
+            document.cookie = `jaiminho_scoreboard=${encodeURIComponent(JSON.stringify(scoreboard))}; expires=${expiryDate.toUTCString()}; path=/`;
+            
+            // Salva o nome do streamer
+            if (streamerName) {
+                document.cookie = `jaiminho_streamer=${encodeURIComponent(streamerName)}; expires=${expiryDate.toUTCString()}; path=/`;
+            }
+        }
+
+        // Inicializa o teclado QWERTY
+        function initializeKeyboard() {
+            keyboard.innerHTML = '';
+            
+            // Linha QWERTYUIOP
+            const row1 = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+            createKeyboardRow(row1);
+            
+            // Linha ASDFGHJKL
+            const row2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
+            createKeyboardRow(row2);
+            
+            // Linha ZXCVBNM
+            const row3 = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
+            createKeyboardRow(row3);
+        }
+
+        function createKeyboardRow(letters) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            
+            letters.forEach(letter => {
+                const key = document.createElement('div');
+                key.className = 'key';
+                key.textContent = letter;
+                key.addEventListener('click', () => handleGuess(letter));
+                rowDiv.appendChild(key);
+            });
+            
+            keyboard.appendChild(rowDiv);
+        }
+
+        // Começa o jogo após cadastro do nome
+        function startGame() {
+            const name = streamerNameInput.value.trim();
+            if (name === '' && !streamerName) {
+                showAlert('Por favor, digite seu nome de streamer!');
+                return;
+            }
+            
+            // Verifica se é o Rodrigo
+            if (name.toLowerCase().includes('rodrigo')) {
+                rodrigoOverlay.classList.add('active');
+            }
+            
+            if (name) {
+                streamerName = name;
+            }
+            
+            welcomeScreen.style.display = 'none';
+            mainContainer.style.display = 'flex';
+            initializeKeyboard();
+            
+            // Verifica se o streamer já está no placar
+            const existingStreamer = scoreboard.find(player => player.isStreamer);
+            
+            if (!existingStreamer) {
+                // Adiciona o streamer ao placar com 0 pontos
+                scoreboard.push({
+                    name: streamerName,
+                    score: 0,
+                    isStreamer: true
+                });
+            } else if (existingStreamer.name !== streamerName) {
+                // Atualiza o nome do streamer se mudou
+                existingStreamer.name = streamerName;
+            }
+            
+            updateScoreboard();
+            saveToCookies();
+        }
+
+        // Mostra alerta estilizado
+        function showAlert(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'message defeat slide-in';
+            alertDiv.textContent = message;
+            alertDiv.style.position = 'fixed';
+            alertDiv.style.top = '20px';
+            alertDiv.style.left = '50%';
+            alertDiv.style.transform = 'translateX(-50%)';
+            alertDiv.style.zIndex = '1000';
+            alertDiv.style.maxWidth = '90%';
+            alertDiv.style.width = 'auto';
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+
+        // Inicia uma nova rodada
+        function startRound() {
+            currentTheme = themeInput.value.trim();
+            secretWord = secretWordInput.value.trim().toUpperCase();
+            
+            if (secretWord === '') {
+                showAlert('Por favor, digite uma palavra secreta!');
+                return;
+            }
+            
+            if (currentTheme === '') {
+                showAlert('Por favor, digite o tema da palavra!');
+                return;
+            }
+            
+            themeInput.value = '';
+            secretWordInput.value = '';
+            guessedLetters = [];
+            errorCount = 0;
+            
+            themeDisplay.textContent = `Tema: ${currentTheme}`;
+            updateWordDisplay();
+            updateStats();
+            resetHangman();
+            
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            victoryScreen.style.display = 'none';
+            gameMessage.className = 'message';
+            gameMessage.textContent = '';
+            revealedWord.style.display = 'none';
+            
+            // Ativa todas as teclas
+            document.querySelectorAll('.key').forEach(key => {
+                key.className = key.className.replace(' correct', '').replace(' wrong', '').replace(' disabled', '');
+            });
+        }
+
+        // Lida com um palpite de letra
+        function handleGuess(letter) {
+            if (guessedLetters.includes(letter)) return;
+            
+            guessedLetters.push(letter);
+            const keyElements = Array.from(document.querySelectorAll('.key'))
+                                .filter(el => el.textContent === letter);
+            
+            // Caracteres que não devem ser ocultados
+            const specialChars = [' ', '-', '_'];
+            
+            if (secretWord.includes(letter) || specialChars.includes(letter)) {
+                // Acerto ou caractere especial (não conta como acerto)
+                keyElements.forEach(key => {
+                    key.classList.add('correct');
+                });
+                updateWordDisplay();
+                
+                // Verifica se ganhou (ignorando espaços e hífens na verificação)
+                if (checkWin()) {
+                    showVictoryModal();
+                }
+            } else {
+                // Erro
+                keyElements.forEach(key => {
+                    key.classList.add('wrong');
+                });
+                errorCount++;
+                updateHangman();
+                updateStats();
+                
+                // Verifica se perdeu
+                if (errorCount >= maxErrors) {
+                    gameOver();
+                }
+            }
+            
+            keyElements.forEach(key => {
+                key.classList.add('disabled');
+            });
+        }
+
+        // Mostra o modal de vitória com animação
+        function showVictoryModal() {
+            victoryMessage.textContent = `Você acertou a palavra: ${secretWord}`;
+            victoryOverlay.classList.add('active');
+            gameContainer.classList.add('victory-effect');
+            
+            // Cria efeito de confete
+            createConfetti();
+        }
+
+        // Mostra o modal de derrota
+        function gameOver() {
+            defeatMessage.textContent = `A palavra era: ${secretWord}`;
+            defeatOverlay.classList.add('active');
+            gameContainer.classList.add('defeat-effect');
+            
+            gameMessage.className = 'message defeat';
+            gameMessage.textContent = `Game Over!`;
+            
+            revealedWord.textContent = `A palavra era: ${secretWord}`;
+            revealedWord.style.display = 'block';
+            
+            document.querySelectorAll('.key').forEach(key => {
+                key.classList.add('disabled');
+            });
+        }
+
+        // Cria efeito de confete
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffd700', '#ffffff'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animation = `confetti-fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(confetti);
+                
+                // Remove o confete após a animação
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Atualiza a exibição da palavra
+        function updateWordDisplay() {
+            const display = secretWord.split('').map(letter => {
+                // Mostra espaços, hífens e underlines sem precisar adivinhar
+                if (letter === ' ' || letter === '-' || letter === '_' || guessedLetters.includes(letter)) {
+                    return letter;
+                } else {
+                    return '_';
+                }
+            }).join(' ');
+            
+            wordDisplay.textContent = display;
+            
+            // Atualiza contagem de letras restantes (ignorando espaços e hífens)
+            const remaining = secretWord.split('').filter(letter => 
+                ![' ', '-', '_'].includes(letter) && !guessedLetters.includes(letter)
+            ).length;
+            
+            remainingCountElement.textContent = remaining;
+        }
+
+        // Atualiza as estatísticas
+        function updateStats() {
+            const correct = secretWord.split('').filter(letter => 
+                ![' ', '-', '_'].includes(letter) && guessedLetters.includes(letter)
+            ).length;
+            
+            correctCountElement.textContent = correct;
+            errorCountElement.textContent = `${errorCount}/${maxErrors}`;
+        }
+
+        // Atualiza o boneco do hangman
+        function updateHangman() {
+            if (errorCount > 0 && errorCount <= hangmanParts.length) {
+                const part = hangmanParts[errorCount - 1];
+                part.style.display = 'block';
+                
+                // Reinicia a animação
+                part.style.animation = 'none';
+                void part.offsetWidth; // Trigger reflow
+                part.style.animation = 'draw 1.5s ease-in-out forwards';
+            }
+        }
+
+        // Reseta o boneco do hangman
+        function resetHangman() {
+            hangmanParts.forEach(part => {
+                part.style.display = 'none';
+            });
+        }
+
+        // Verifica se o jogador ganhou (ignorando espaços e hífens)
+        function checkWin() {
+            return secretWord.split('').every(letter => 
+                [' ', '-', '_'].includes(letter) || guessedLetters.includes(letter)
+            );
+        }
+
+        // Adiciona ponto ao placar
+        function addPoint(isStreamer, isAuto = false) {
+            let playerName;
+            
+            if (isStreamer) {
+                playerName = streamerName;
+            } else {
+                playerName = winnerInput.value.trim();
+                if (playerName === '' && !isAuto) {
+                    showAlert('Por favor, digite o nome do ganhador!');
+                    return;
+                }
+            }
+            
+            // Verifica se o jogador já está no placar
+            const existingPlayer = scoreboard.find(player => player.name === playerName);
+            
+            if (existingPlayer) {
+                existingPlayer.score++;
+            } else {
+                scoreboard.push({
+                    name: playerName,
+                    score: 1,
+                    isStreamer: isStreamer
+                });
+            }
+            
+            updateScoreboard();
+            saveToCookies();
+            
+            if (!isAuto) {
+                resetRound();
+            } else {
+                // Se foi automático (derrota), mostra mensagem
+                gameMessage.textContent += `\nPonto para ${playerName}!`;
+            }
+        }
+
+        // Pula a tela de vitória
+        function skipVictoryScreen() {
+            victoryScreen.style.display = 'none';
+            resetRound();
+        }
+
+        // Reseta a rodada
+        function resetRound() {
+            gameContainer.classList.remove('victory-effect');
+            gameContainer.classList.remove('defeat-effect');
+            setupScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            victoryScreen.style.display = 'none';
+            gameMessage.className = 'message';
+            gameMessage.textContent = '';
+            revealedWord.style.display = 'none';
+        }
+
+        // Atualiza o placar
+        function updateScoreboard() {
+            if (scoreboard.length === 0) {
+                scoreboardContent.innerHTML = '<p style="opacity: 0.6; text-align: center;">Nenhum ponto registrado ainda</p>';
+                return;
+            }
+            
+            // Ordena por pontuação (maior primeiro)
+            scoreboard.sort((a, b) => b.score - a.score);
+            
+            let html = '';
+            scoreboard.forEach((player, index) => {
+                const isTop = index === 0 && scoreboard.length > 1 && player.score > 0;
+                html += `
+                    <div class="score-item ${player.isStreamer ? 'streamer' : ''}">
+                        <div class="player-name">
+                            ${isTop ? '👑' : ''} ${player.name}
+                        </div>
+                        <div class="player-score">
+                            ${player.score} ${player.score === 1 ? 'ponto' : 'pontos'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            scoreboardContent.innerHTML = html;
+        }
+
+        // Limpa o placar
+        function clearScoreboard() {
+            if (confirm('Tem certeza que deseja limpar o placar?')) {
+                scoreboard = [];
+                // Mantém apenas o streamer no placar
+                scoreboard.push({
+                    name: streamerName,
+                    score: 0,
+                    isStreamer: true
+                });
+                updateScoreboard();
+                saveToCookies();
+            }
+        }
+
+        // Carrega os dados quando a página é aberta
+        window.addEventListener('load', loadFromCookies);
+
+        // Adiciona suporte para teclado físico
+        document.addEventListener('keydown', (e) => {
+            if (gameScreen.style.display !== 'block') return;
+            
+            const key = e.key.toUpperCase();
+            if (/^[A-Z]$/.test(key)) {
+                const keyElement = Array.from(document.querySelectorAll('.key'))
+                    .find(el => el.textContent === key && !el.classList.contains('disabled'));
+                
+                if (keyElement) {
+                    keyElement.click();
+                    // Efeito visual de pressionar a tecla
+                    keyElement.style.transform = 'translateY(2px)';
+                    setTimeout(() => {
+                        keyElement.style.transform = '';
+                    }, 100);
+                }
+            }
+        });
     </script>
 </body>
 </html>
