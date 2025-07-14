@@ -50,6 +50,7 @@
             height: 80px;
             margin-bottom: 15px;
             animation: float 3s ease-in-out infinite;
+            object-fit: contain;
         }
 
         @keyframes float {
@@ -788,6 +789,16 @@
             stroke-width: 3; 
         }
 
+        /* Logo no hangman */
+        .hangman-logo {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            object-fit: contain;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
         /* Histórico de versões */
         .history-title {
             color: var(--primary);
@@ -971,6 +982,11 @@
             .stats {
                 grid-template-columns: 1fr;
             }
+            
+            .hangman-logo {
+                width: 80px;
+                height: 80px;
+            }
         }
 
         /* Animações */
@@ -1124,6 +1140,7 @@
                 </div>
 
                 <div class="hangman-display" id="hangmanDisplay">
+                    <img src="https://raw.githubusercontent.com/Emanuelmiguel12345/Freecut/refs/heads/main/6%20Sem%20T%C3%ADtulo_20250714021933.png" alt="Logo" class="hangman-logo">
                     <svg class="hangman-svg" viewBox="0 0 200 200">
                         <!-- Base -->
                         <line class="gallows" x1="20" y1="180" x2="100" y2="180" />
