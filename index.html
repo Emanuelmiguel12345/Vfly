@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo do Jaiminho - Live Streamer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #4ecdc4;
@@ -458,6 +458,17 @@
             border: 1px solid rgba(255, 107, 107, 0.3);
         }
 
+        /* Mensagem de ajuda */
+        .help-message {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: var(--secondary);
+            text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            letter-spacing: 2px;
+            margin: 15px 0;
+            animation: pulse 1.5s infinite;
+        }
+
         /* Estatísticas */
         .stats { 
             display: grid; 
@@ -792,10 +803,10 @@
         /* Logo no hangman */
         .hangman-logo {
             position: absolute;
-            width: 120px;
-            height: 120px;
+            width: 180px;
+            height: 180px;
             object-fit: contain;
-            opacity: 0.1;
+            opacity: 0.2;
             z-index: 1;
         }
 
@@ -972,6 +983,10 @@
                 font-size: 1.2rem;
             }
             
+            .help-message {
+                font-size: 1.5rem;
+            }
+            
             .key {
                 min-width: 30px;
                 height: 40px;
@@ -984,8 +999,8 @@
             }
             
             .hangman-logo {
-                width: 80px;
-                height: 80px;
+                width: 120px;
+                height: 120px;
             }
         }
 
@@ -1073,7 +1088,12 @@
         <div class="side-container history-container">
             <h3 class="history-title">📜 HISTÓRICO DE VERSÕES</h3>
             <div class="history-content">
-                <div class="version-title">Versão 2.0 (Atual)</div>
+                <div class="version-title">Versão 2.1 (Atual)</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Mensagem "Ajude a salvar o Jaiminho" adicionada</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Imagem de fundo do hangman ampliada</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Melhorias na interface do jogo</div>
+                
+                <div class="version-title">Versão 2.0</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Interface completamente redesenhada</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Sistema de pontuação aprimorado</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Novas animações e efeitos visuais</div>
@@ -1122,6 +1142,7 @@
             <!-- Tela do Jogo -->
             <div class="game-screen" id="gameScreen">
                 <div class="theme-display" id="themeDisplay"></div>
+                <div class="help-message">AJUDE A SALVAR O JAIMINHO!</div>
                 <div class="word-display" id="wordDisplay"></div>
                 
                 <div class="stats">
@@ -1457,7 +1478,7 @@
             
             guessedLetters.push(letter);
             const keyElements = Array.from(document.querySelectorAll('.key'))
-                                .filter(el => el.textContent === letter);
+                                .filter(el => el.textContent === letter && !el.classList.contains('disabled'));
             
             // Caracteres que não devem ser ocultados
             const specialChars = [' ', '-', '_'];
