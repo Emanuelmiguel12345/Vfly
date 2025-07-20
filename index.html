@@ -4,21 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jogo do Jaiminho - Live Streamer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Bangers&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Bangers&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4ecdc4;
-            --primary-dark: #3aa8a1;
-            --secondary: #ff6b6b;
-            --secondary-dark: #e05555;
-            --accent: #9c4dff;
-            --dark: #0a0a0a;
-            --darker: #1a1a2e;
+            --primary: #00e5ff;
+            --primary-dark: #00b8d4;
+            --secondary: #ff4081;
+            --secondary-dark: #f50057;
+            --accent: #651fff;
+            --dark: #121212;
+            --darker: #1e1e2e;
             --light: #ffffff;
-            --gray: #cccccc;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --danger: #f44336;
+            --gray: #b0b0b0;
+            --success: #00e676;
+            --warning: #ffab00;
+            --danger: #ff1744;
+            --admin: #ffc107;
         }
 
         * { 
@@ -38,6 +39,144 @@
             line-height: 1.6;
         }
 
+        /* Admin Message System */
+        .admin-message-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            width: 90%;
+            max-width: 600px;
+            animation: slideInDown 0.5s ease-out;
+        }
+
+        .admin-message {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 179, 0, 0.9) 100%);
+            color: #000;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--admin);
+        }
+
+        .admin-message-content {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .close-admin-message {
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            color: #000;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .close-admin-message:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .admin-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .admin-controls.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .admin-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--admin), #ffab00);
+            border: none;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .admin-toggle:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.6);
+        }
+
+        .admin-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--admin);
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            color: #000;
+            width: 100%;
+            margin-bottom: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+        }
+
+        .admin-input::placeholder {
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .admin-btn {
+            background: linear-gradient(45deg, #000, #333);
+            border: none;
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            color: var(--admin);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
         /* Header */
         .header {
             text-align: center;
@@ -46,11 +185,12 @@
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             margin-bottom: 15px;
             animation: float 3s ease-in-out infinite;
             object-fit: contain;
+            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.5));
         }
 
         @keyframes float {
@@ -117,6 +257,7 @@
             font-size: 2rem;
             margin-bottom: 20px;
             text-shadow: 0 0 15px rgba(255,255,255,0.3);
+            font-family: 'Montserrat', sans-serif;
         }
 
         .modal p {
@@ -169,7 +310,7 @@
             object-fit: cover;
             border: 3px solid var(--accent);
             margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(156, 77, 255, 0.5);
+            box-shadow: 0 0 20px rgba(101, 31, 255, 0.5);
             transition: transform 0.3s;
         }
 
@@ -186,7 +327,7 @@
         }
 
         .rodrigo-stats span {
-            background: rgba(156, 77, 255, 0.1);
+            background: rgba(101, 31, 255, 0.1);
             padding: 8px 12px;
             border-radius: 8px;
             font-size: 0.9rem;
@@ -239,7 +380,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(78, 205, 196, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 229, 255, 0.1) 0%, transparent 70%);
             z-index: -1;
             opacity: 0;
             transition: opacity 0.5s ease;
@@ -250,7 +391,7 @@
         }
 
         .game-container.defeat-effect::before {
-            background: radial-gradient(circle, rgba(255, 107, 107, 0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 64, 129, 0.1) 0%, transparent 70%);
             opacity: 1;
         }
 
@@ -280,16 +421,18 @@
 
         /* Título do jogo */
         h1 { 
-            font-size: 2.5rem; 
+            font-size: 2.8rem; 
             margin-bottom: 10px; 
-            background: linear-gradient(45deg, var(--secondary), var(--primary), #45b7d1);
+            background: linear-gradient(45deg, var(--secondary), var(--primary), #00b8d4);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 30px rgba(255, 107, 107, 0.3);
+            text-shadow: 0 0 30px rgba(255, 64, 129, 0.3);
             position: relative;
             display: inline-block;
             font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 1px;
         }
 
         h1::after {
@@ -300,13 +443,14 @@
             transform: translateX(-50%);
             width: 80%;
             height: 3px;
-            background: linear-gradient(90deg, var(--secondary), var(--primary), #45b7d1);
+            background: linear-gradient(90deg, var(--secondary), var(--primary), #00b8d4);
             border-radius: 3px;
         }
 
         h2, h3, h4 {
             color: var(--primary);
             margin-bottom: 15px;
+            font-family: 'Montserrat', sans-serif;
         }
 
         /* Telas do jogo */
@@ -348,7 +492,7 @@
         .form-input:focus { 
             outline: none; 
             border-color: var(--primary); 
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); 
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); 
         }
 
         .form-input::placeholder { 
@@ -392,7 +536,7 @@
 
         .btn:hover { 
             transform: translateY(-3px); 
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3); 
+            box-shadow: 0 10px 20px rgba(255, 64, 129, 0.3); 
         }
 
         .btn:active {
@@ -400,7 +544,7 @@
         }
 
         .btn-small { 
-            background: linear-gradient(45deg, var(--primary), #45b7d1); 
+            background: linear-gradient(45deg, var(--primary), #00b8d4); 
             border: none; 
             border-radius: 10px; 
             padding: 10px 20px; 
@@ -415,7 +559,7 @@
 
         .btn-small:hover { 
             transform: translateY(-2px); 
-            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3); 
+            box-shadow: 0 5px 15px rgba(0, 229, 255, 0.3); 
         }
 
         .btn-secondary {
@@ -434,7 +578,7 @@
             margin: 30px 0; 
             letter-spacing: 8px; 
             color: var(--primary); 
-            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5); 
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.5); 
             min-height: 60px; 
             display: flex; 
             justify-content: center; 
@@ -450,18 +594,18 @@
             font-weight: bold;
             margin: 10px 0;
             color: var(--secondary);
-            text-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+            text-shadow: 0 0 10px rgba(255, 64, 129, 0.3);
             padding: 10px 20px;
-            background: rgba(255, 107, 107, 0.1);
+            background: rgba(255, 64, 129, 0.1);
             border-radius: 10px;
             display: inline-block;
-            border: 1px solid rgba(255, 107, 107, 0.3);
+            border: 1px solid rgba(255, 64, 129, 0.3);
         }
 
         /* Mensagem de ajuda */
         .help-message {
             font-family: 'Bangers', cursive;
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--secondary);
             text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
             letter-spacing: 2px;
@@ -567,13 +711,13 @@
         .key.correct { 
             background: linear-gradient(45deg, var(--primary), var(--primary-dark)); 
             border-color: var(--primary); 
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3); 
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); 
         }
 
         .key.wrong { 
             background: linear-gradient(45deg, var(--secondary), var(--secondary-dark)); 
             border-color: var(--secondary); 
-            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3); 
+            box-shadow: 0 0 20px rgba(255, 64, 129, 0.3); 
         }
 
         .key.disabled { 
@@ -598,17 +742,17 @@
         }
 
         .message.victory { 
-            background: linear-gradient(45deg, rgba(78, 205, 196, 0.2), rgba(69, 183, 209, 0.2)); 
+            background: linear-gradient(45deg, rgba(0, 229, 255, 0.2), rgba(0, 184, 212, 0.2)); 
             border: 2px solid var(--primary); 
             color: var(--primary); 
-            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5); 
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.5); 
         }
 
         .message.defeat { 
-            background: linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(255, 71, 87, 0.2)); 
+            background: linear-gradient(45deg, rgba(255, 64, 129, 0.2), rgba(245, 0, 87, 0.2)); 
             border: 2px solid var(--secondary); 
             color: var(--secondary); 
-            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5); 
+            text-shadow: 0 0 20px rgba(255, 64, 129, 0.5); 
         }
 
         /* Palavra revelada */
@@ -621,7 +765,7 @@
             letter-spacing: 3px;
             animation: pulse 1.5s infinite;
             padding: 10px;
-            background: rgba(255, 107, 107, 0.1);
+            background: rgba(255, 64, 129, 0.1);
             border-radius: 10px;
         }
 
@@ -634,7 +778,7 @@
         /* Tela de vitória */
         .victory-screen { 
             display: none; 
-            background: rgba(78, 205, 196, 0.1); 
+            background: rgba(0, 229, 255, 0.1); 
             border: 2px solid var(--primary); 
             border-radius: 15px; 
             padding: 20px; 
@@ -657,7 +801,7 @@
 
         .victory-input:focus { 
             outline: none; 
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.4); 
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); 
         }
 
         .victory-input::placeholder { 
@@ -694,7 +838,7 @@
             text-align: center; 
             position: sticky;
             top: 0;
-            background: rgba(26, 26, 46, 0.8);
+            background: rgba(30, 30, 46, 0.8);
             backdrop-filter: blur(5px);
             padding: 10px;
             z-index: 1;
@@ -719,7 +863,7 @@
 
         .score-item.streamer { 
             border-left-color: var(--secondary); 
-            background: rgba(255, 107, 107, 0.1); 
+            background: rgba(255, 64, 129, 0.1); 
         }
 
         .player-name { 
@@ -766,7 +910,7 @@
 
         .hangman-part { 
             transition: 0.5s; 
-            filter: drop-shadow(0 0 5px rgba(255, 107, 107, 0.5)); 
+            filter: drop-shadow(0 0 5px rgba(255, 64, 129, 0.5)); 
             stroke-dasharray: 1000;
             stroke-dashoffset: 1000;
             animation: draw 1.5s ease-in-out forwards;
@@ -818,7 +962,7 @@
             text-align: center;
             position: sticky;
             top: 0;
-            background: rgba(26, 26, 46, 0.8);
+            background: rgba(30, 30, 46, 0.8);
             backdrop-filter: blur(5px);
             padding: 10px;
             z-index: 1;
@@ -954,7 +1098,7 @@
             }
             
             h1 { 
-                font-size: 2rem; 
+                font-size: 2.2rem; 
             }
             
             .word-display { 
@@ -1002,6 +1146,14 @@
                 width: 120px;
                 height: 120px;
             }
+            
+            .admin-message-container {
+                width: 95%;
+            }
+            
+            .admin-message-content {
+                font-size: 1rem;
+            }
         }
 
         /* Animações */
@@ -1014,6 +1166,11 @@
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+        
+        @keyframes slideInDown {
+            from { transform: translate(-50%, -50px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
 
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
@@ -1025,6 +1182,21 @@
     </style>
 </head>
 <body>
+    <!-- Sistema de Mensagens de ADM -->
+    <div class="admin-message-container" id="adminMessageContainer" style="display: none;">
+        <div class="admin-message">
+            <div class="admin-message-content" id="adminMessageContent"></div>
+            <button class="close-admin-message" id="closeAdminMessage">✕</button>
+        </div>
+    </div>
+
+    <!-- Controles de ADM -->
+    <div class="admin-controls" id="adminControls">
+        <input type="text" class="admin-input" id="adminMessageInput" placeholder="Digite sua mensagem de ADM...">
+        <button class="admin-btn" id="sendAdminMessageBtn">ENVIAR MENSAGEM</button>
+    </div>
+    <button class="admin-toggle" id="adminToggle">ADM</button>
+
     <!-- Overlay e Modal de Vitória -->
     <div class="overlay" id="victoryOverlay">
         <div class="modal victory-modal">
@@ -1088,25 +1260,17 @@
         <div class="side-container history-container">
             <h3 class="history-title">📜 HISTÓRICO DE VERSÕES</h3>
             <div class="history-content">
-                <div class="version-title">Versão 2.1 (Atual)</div>
+                <div class="version-title">Versão 2.2 (Atual)</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Sistema de mensagens de ADM adicionado</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Design completamente renovado</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Nova paleta de cores vibrantes</div>
+                <div class="version-feature"><span class="feature-check">✅</span> Melhorias na tipografia e hierarquia visual</div>
+                
+                <div class="version-title">Versão 2.1</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Mensagem "Ajude a salvar o Jaiminho" adicionada</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Imagem de fundo do hangman ampliada</div>
                 <div class="version-feature"><span class="feature-check">✅</span> Melhorias na interface do jogo</div>
                 
-                <div class="version-title">Versão 2.0</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Interface completamente redesenhada</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Sistema de pontuação aprimorado</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Novas animações e efeitos visuais</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Design responsivo para todos dispositivos</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Melhorias na experiência do usuário</div>
-                
-                <div class="version-title">Versão 1.4</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Novo modal de vitória com animações</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Design aprimorado com efeitos visuais</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Campo de tema para a palavra secreta</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Tela de derrota estilizada</div>
-                <div class="version-feature"><span class="feature-check">✅</span> Easter egg especial para o Rodrigo</div>
-
                 <div class="how-to-use">
                     <h4><span>🎮</span> COMO USAR</h4>
                     <ol>
@@ -1232,6 +1396,8 @@
         let scoreboard = [];
         let streamerName = '';
         let currentTheme = '';
+        let isAdmin = false;
+        let adminPassword = "jaiminho123"; // Senha padrão para modo ADM
 
         // Elementos do DOM
         const welcomeScreen = document.getElementById('welcomeScreen');
@@ -1260,6 +1426,15 @@
         const newWordBtn = document.getElementById('newWordBtn');
         const scoreboardContent = document.getElementById('scoreboardContent');
         const clearScoreboardBtn = document.getElementById('clearScoreboardBtn');
+        
+        // Elementos do sistema de ADM
+        const adminMessageContainer = document.getElementById('adminMessageContainer');
+        const adminMessageContent = document.getElementById('adminMessageContent');
+        const closeAdminMessage = document.getElementById('closeAdminMessage');
+        const adminControls = document.getElementById('adminControls');
+        const adminToggle = document.getElementById('adminToggle');
+        const adminMessageInput = document.getElementById('adminMessageInput');
+        const sendAdminMessageBtn = document.getElementById('sendAdminMessageBtn');
         
         // Modais
         const victoryOverlay = document.getElementById('victoryOverlay');
@@ -1299,6 +1474,76 @@
         closeRodrigoBtn.addEventListener('click', () => {
             rodrigoOverlay.classList.remove('active');
         });
+        
+        // Event Listeners para sistema de ADM
+        adminToggle.addEventListener('click', toggleAdminControls);
+        closeAdminMessage.addEventListener('click', hideAdminMessage);
+        sendAdminMessageBtn.addEventListener('click', sendAdminMessage);
+        adminMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendAdminMessage();
+            }
+        });
+
+        // Funções do sistema de ADM
+        function toggleAdminControls() {
+            if (!isAdmin) {
+                const password = prompt("Digite a senha de ADM:");
+                if (password === adminPassword) {
+                    isAdmin = true;
+                    adminControls.classList.add('active');
+                    adminToggle.textContent = '✓';
+                    adminToggle.style.background = 'linear-gradient(45deg, var(--admin), #ffab00)';
+                    showAlert('Modo ADM ativado!');
+                } else {
+                    showAlert('Senha incorreta!');
+                }
+            } else {
+                isAdmin = false;
+                adminControls.classList.remove('active');
+                adminToggle.textContent = 'ADM';
+                adminToggle.style.background = 'linear-gradient(45deg, var(--admin), #ffab00)';
+            }
+        }
+
+        function sendAdminMessage() {
+            const message = adminMessageInput.value.trim();
+            if (message === '') {
+                showAlert('Digite uma mensagem para enviar!');
+                return;
+            }
+            
+            // Salva a mensagem no localStorage para persistência
+            localStorage.setItem('jaiminho_admin_message', message);
+            
+            // Exibe para todos os usuários
+            showAdminMessage(message);
+            adminMessageInput.value = '';
+        }
+
+        function showAdminMessage(message) {
+            adminMessageContent.textContent = `ADMIN: ${message}`;
+            adminMessageContainer.style.display = 'block';
+            
+            // Esconde automaticamente após 10 segundos
+            setTimeout(() => {
+                if (adminMessageContainer.style.display === 'block') {
+                    hideAdminMessage();
+                }
+            }, 10000);
+        }
+
+        function hideAdminMessage() {
+            adminMessageContainer.style.display = 'none';
+        }
+
+        // Verifica se há mensagem de ADM salva ao carregar a página
+        function checkAdminMessage() {
+            const savedMessage = localStorage.getItem('jaiminho_admin_message');
+            if (savedMessage) {
+                showAdminMessage(savedMessage);
+            }
+        }
 
         // Carrega dados salvos nos cookies
         function loadFromCookies() {
@@ -1720,7 +1965,10 @@
         }
 
         // Carrega os dados quando a página é aberta
-        window.addEventListener('load', loadFromCookies);
+        window.addEventListener('load', () => {
+            loadFromCookies();
+            checkAdminMessage();
+        });
 
         // Adiciona suporte para teclado físico
         document.addEventListener('keydown', (e) => {
